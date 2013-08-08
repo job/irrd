@@ -33,6 +33,7 @@ extern int lncont;
 extern int tokenpos;
 
 /* function prototypes */
+int yydebug=1;
 
 void yyerror (char *);
 int yyparse ();
@@ -117,12 +118,16 @@ proto_t    *pr;
 %type <string> action single_action opt_action tunnel opt_tunnel encapsulation
 %type <string> peering import_peering_action_list export_peering_action_list
 %type <string> import_simple export_simple
-%type <string> import_factor export_factor 
+%type <string> import_factor export_factor
+%type <string> import_via_simple export_via_simple
+%type <string> import_via_factor export_via_factor
+%type <string> import_via_peering_action_list export_via_peering_action_list
 %type <string> import_term export_term
 %type <string> afi_import_exp afi_export_exp
 %type <string> import_exp export_exp
 %type <string> import_factor_list export_factor_list
 %type <string> attr_import_syntax  attr_export_syntax
+%type <string> attr_import_via_syntax  attr_export_via_syntax
 %type <string> opt_protocol_from opt_protocol_into
 %type <string> opt_default_filter default_to optional_comment
 %type <string> opt_afi_specification afi_list afi_token afi_name
@@ -158,14 +163,14 @@ proto_t    *pr;
 %token  T_MH_KEY T_OW_KEY T_FP_KEY T_CE_KEY T_DC_KEY T_TD_KEY T_RP_KEY
 %token  T_PL_KEY T_AF_KEY T_RT_KEY T_R6_KEY T_HO_KEY T_IJ_KEY T_MO_KEY
 %token  T_CO_KEY T_AB_KEY T_AG_KEY T_EC_KEY T_AN_KEY T_AA_KEY T_IP_KEY
-%token  T_MI_KEY T_EX_KEY T_MX_KEY T_DF_KEY T_MD_KEY T_MA_KEY T_AK_KEY
-%token  T_IR_KEY T_AZ_KEY T_LA_KEY T_IF_KEY T_PE_KEY T_MZ_KEY T_PM_KEY
-%token  T_IE_KEY T_RI_KEY T_RX_KEY T_MY_KEY T_AS_KEY T_MS_KEY T_RS_KEY
-%token  T_ME_KEY T_MM_KEY T_IS_KEY T_MG_KEY T_MJ_KEY T_PS_KEY T_PG_KEY
-%token  T_MP_KEY T_FS_KEY T_FI_KEY T_MF_KEY T_PN_KEY T_AD_KEY T_RO_KEY
-%token  T_TB_KEY T_MT_KEY T_DT_KEY T_MN_KEY T_AT_KEY T_S6_KEY T_LO_KEY
-%token  T_PR_KEY T_AP_KEY T_TU_KEY T_CT_KEY T_UL_KEY T_LI_KEY T_TE_KEY
-%token  T_AU_KEY T_UD_KEY T_UO_KEY T_UP_KEY T_UC_KEY
+%token  T_MI_KEY T_IV_KEY T_EX_KEY T_MX_KEY T_EV_KEY T_DF_KEY T_MD_KEY
+%token  T_MA_KEY T_AK_KEY T_IR_KEY T_AZ_KEY T_LA_KEY T_IF_KEY T_PE_KEY
+%token  T_MZ_KEY T_PM_KEY T_IE_KEY T_RI_KEY T_RX_KEY T_MY_KEY T_AS_KEY
+%token  T_MS_KEY T_RS_KEY T_ME_KEY T_MM_KEY T_IS_KEY T_MG_KEY T_MJ_KEY
+%token  T_PS_KEY T_PG_KEY T_MP_KEY T_FS_KEY T_FI_KEY T_MF_KEY T_PN_KEY
+%token  T_AD_KEY T_RO_KEY T_TB_KEY T_MT_KEY T_DT_KEY T_MN_KEY T_AT_KEY
+%token  T_S6_KEY T_LO_KEY T_PR_KEY T_AP_KEY T_TU_KEY T_CT_KEY T_UL_KEY
+%token  T_LI_KEY T_TE_KEY T_AU_KEY T_UD_KEY T_UO_KEY T_UP_KEY T_UC_KEY
 
 /* RPSL reserved words */
 
@@ -232,8 +237,10 @@ proto_t    *pr;
 %type <string> attr_autnum
 %type <string> attr_import
 %type <string> attr_mp_import
+%type <string> attr_import_via
 %type <string> attr_export
 %type <string> attr_mp_export
+%type <string> attr_export_via
 %type <string> attr_default
 %type <string> attr_mp_default
 %type <string> attr_member_of_an
@@ -551,8 +558,10 @@ line_rtr_set: attr_rtr_set { $$ = $1; }
 line_autnum: attr_autnum { $$ = $1; }
   | attr_import          { $$ = $1; }
   | attr_mp_import       { $$ = $1; }
+  | attr_import_via      { $$ = $1; }
   | attr_export          { $$ = $1; }
   | attr_mp_export       { $$ = $1; }
+  | attr_export_via      { $$ = $1; }
   | attr_default         { $$ = $1; }
   | attr_mp_default      { $$ = $1; }
   | attr_member_of_an    { $$ = $1; }
@@ -1088,11 +1097,25 @@ attr_import_syntax: opt_protocol_from opt_protocol_into import_simple
    | opt_protocol_from opt_protocol_into afi_import_exp
            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
 
+attr_import_via: T_IV_KEY {mp_attr = 1;} attr_import_via_syntax { $$ = $3; };
+
+attr_import_via_syntax: opt_protocol_from opt_protocol_into import_via_simple
+           { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
+   | opt_protocol_from opt_protocol_into afi_import_exp
+           { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
+
 attr_export: T_EX_KEY {mp_attr = 0;} attr_export_syntax { $$ = $3; };
 
 attr_mp_export: T_MX_KEY {mp_attr = 1;} attr_export_syntax { $$ = $3; };
 
 attr_export_syntax: opt_protocol_from opt_protocol_into export_simple
+           { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
+   | opt_protocol_from opt_protocol_into afi_export_exp
+           { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
+
+attr_export_via: T_EV_KEY {mp_attr = 1;} attr_export_via_syntax { $$ = $3; };
+
+attr_export_via_syntax: opt_protocol_from opt_protocol_into export_via_simple
            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
    | opt_protocol_from opt_protocol_into afi_export_exp
            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
@@ -1157,6 +1180,14 @@ import_simple: opt_afi_specification import_factor
 export_simple: opt_afi_specification export_factor
         { $$ = my_strcat (&curr_obj, 3, 02, $1, " ", $2); };
 
+/* simple via import/export expression */
+
+import_via_simple: opt_afi_specification import_via_factor
+        { $$ = my_strcat (&curr_obj, 3, 02, $1, " ", $2); };
+
+export_via_simple: opt_afi_specification export_via_factor
+        { $$ = my_strcat (&curr_obj, 3, 02, $1, " ", $2); };
+
 /* structured import/export expressions */
 
 afi_import_exp: opt_afi_specification import_exp
@@ -1207,6 +1238,13 @@ import_factor: import_peering_action_list T_ACCEPT filter
 export_factor: export_peering_action_list T_ANNOUNCE filter
         { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
 
+import_via_factor: import_via_peering_action_list T_ACCEPT filter
+        { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
+
+export_via_factor: export_via_peering_action_list T_ANNOUNCE filter
+        { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
+
+
 /* peering action pair */
 
 import_peering_action_list: T_FROM peering opt_action
@@ -1214,11 +1252,21 @@ import_peering_action_list: T_FROM peering opt_action
         | import_peering_action_list T_FROM peering opt_action 
             { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
 
+import_via_peering_action_list: peering T_FROM peering opt_action
+            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
+        | import_via_peering_action_list T_FROM peering opt_action 
+            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
+
 export_peering_action_list: T_TO peering opt_action
             { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | export_peering_action_list T_TO peering opt_action
             { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
-
+ 
+export_via_peering_action_list: peering T_TO peering opt_action
+            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
+        | export_via_peering_action_list T_TO peering opt_action
+            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
+                    
 peering: as_expression opt_router_expression opt_router_expression_with_at
             { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | T_PRNGNAME { $$ = $1; };

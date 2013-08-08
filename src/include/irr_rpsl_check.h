@@ -51,9 +51,9 @@
 /* data from the ripedb.config file */
 
 #define     F_NOATTR      -1
-#define     MAX_ATTRS 117
+#define     MAX_ATTRS 119
 #define     MAX_OBJS 21
-#define     MAX_ATSQ_LEN 24
+#define     MAX_ATSQ_LEN 25
 #define     MAX_MANDS 14
 
 /* --------Bison enum FIELDS--------*/
@@ -66,13 +66,13 @@ enum ATTRS {
     F_I6, F_KC, F_MH, F_OW, F_FP, F_CE, F_DC, F_TD,
     F_RP, F_PL, F_AF, F_RT, F_R6, F_HO, F_IJ, F_MO,
     F_CO, F_AB, F_AG, F_EC, F_AN, F_AA, F_IP, F_MI,
-    F_EX, F_MX, F_DF, F_MD, F_MA, F_AK, F_IR, F_AZ,
-    F_LA, F_IF, F_PE, F_MZ, F_PM, F_IE, F_RI, F_RX,
-    F_MY, F_AS, F_MS, F_RS, F_ME, F_MM, F_IS, F_MG,
-    F_MJ, F_PS, F_PG, F_MP, F_FS, F_FI, F_MF, F_PN,
-    F_AD, F_RO, F_TB, F_MT, F_DT, F_MN, F_AT, F_S6,
-    F_LO, F_PR, F_AP, F_TU, F_CT, F_UL, F_LI, F_TE,
-    F_AU, F_UD, F_UO, F_UP, F_UC
+    F_IV, F_EX, F_MX, F_EV, F_DF, F_MD, F_MA, F_AK,
+    F_IR, F_AZ, F_LA, F_IF, F_PE, F_MZ, F_PM, F_IE,
+    F_RI, F_RX, F_MY, F_AS, F_MS, F_RS, F_ME, F_MM,
+    F_IS, F_MG, F_MJ, F_PS, F_PG, F_MP, F_FS, F_FI,
+    F_MF, F_PN, F_AD, F_RO, F_TB, F_MT, F_DT, F_MN,
+    F_AT, F_S6, F_LO, F_PR, F_AP, F_TU, F_CT, F_UL,
+    F_LI, F_TE, F_AU, F_UD, F_UO, F_UP, F_UC,
 };
 
 /*--------Bison enum OBJS--------*/
