@@ -1220,36 +1220,36 @@ export_factor: export_peering_action_list T_ANNOUNCE filter
 
 import_peering_action_list: T_FROM peering opt_action
             { if ( via_attr == 1 )
-                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
+                error_msg_queue (&curr_obj, "illegal syntax clause i-1", ERROR_MSG); 
               $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | peering T_FROM peering opt_action 
             { if ( via_attr == 0 )
-                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
+                error_msg_queue (&curr_obj, "illegal syntax clause i-2", ERROR_MSG); 
               $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | import_peering_action_list T_FROM peering opt_action 
             { if ( via_attr == 1 )
-                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
+                error_msg_queue (&curr_obj, "illegal syntax clause i-3", ERROR_MSG); 
               $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | import_peering_action_list peering T_FROM peering opt_action 
             { if ( via_attr == 0 )
-                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
+                error_msg_queue (&curr_obj, "illegal syntax clause i-4", ERROR_MSG); 
               $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
 
 export_peering_action_list: T_TO peering opt_action
             { if ( via_attr == 1 )
-                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
+                error_msg_queue (&curr_obj, "illegal syntax clause e-1", ERROR_MSG); 
               $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | peering T_TO peering opt_action
             { if ( via_attr == 0 )
-                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
+                error_msg_queue (&curr_obj, "illegal syntax clause e-2", ERROR_MSG); 
               $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | export_peering_action_list T_TO peering opt_action
             { if ( via_attr == 1 )
-                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
+                error_msg_queue (&curr_obj, "illegal syntax clause e-3", ERROR_MSG); 
               $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | export_peering_action_list peering T_TO peering opt_action 
             { if ( via_attr == 0 )
-                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
+                error_msg_queue (&curr_obj, "illegal syntax clause e-4", ERROR_MSG); 
               $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
 
 peering: as_expression opt_router_expression opt_router_expression_with_at

@@ -89,6 +89,16 @@ User/Configuration Guide</title>
 	  Document the mirror_protocol config option
        </revremark>
    </revision>
+   <revision>
+     <revnumber>2.3.11</revnumber>
+       <date>2013-08-09</date>
+       <authorinitials>jwjs</authorinitials>
+       <revremark>
+	  Add support for import-via/export-via based on
+      IETF draft-snijders-rpsl-via
+       </revremark>
+   </revision>
+<
 </revhistory>
 <copyright>
 <year>1999</year>
@@ -99,6 +109,7 @@ User/Configuration Guide</title>
 <year>2004</year>
 <year>2008</year>
 <year>2010</year>
+<year>2013</year>
 <holder>
 The Regents of the University of Michigan ("The Regents") and
 Merit Network, Inc.  All rights reserved.</holder>
