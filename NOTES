@@ -1,7 +1,8 @@
  Aug 09, 2013      IRRd 2.3.11  Release notes
    Added support for IETF Internet Draft draft-snijders-rpsl-via
    which allows networks to express desired policy regarding
-   non-adjacent networks. IRRd and irr_rpsl_check have been patched
+   non-adjacent networks. IRRd and irr_rpsl_check have been patched.
+   Added by Job Snijders <job.snijders@atrato.com>
 
  Nov 17, 2010      IRRd 2.3.10  Release notes
    Expand stack size to 1024 entries in rpsl-commands.c (stack overflow issues)
