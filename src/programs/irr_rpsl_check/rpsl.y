@@ -26,7 +26,7 @@ extern FILE *dfile;
 extern int ERROR_STATE;
 extern u_int ri_opts;
 char *p, *q;
-static int i, mp_attr, filter_count, import_errors, all, none;
+static int i, mp_attr, via_attr, filter_count, import_errors, all, none;
 extern int lncont;
 
 /* defined in lexer rpsl.fl */
@@ -119,15 +119,11 @@ proto_t    *pr;
 %type <string> peering import_peering_action_list export_peering_action_list
 %type <string> import_simple export_simple
 %type <string> import_factor export_factor
-%type <string> import_via_simple export_via_simple
-%type <string> import_via_factor export_via_factor
-%type <string> import_via_peering_action_list export_via_peering_action_list
 %type <string> import_term export_term
 %type <string> afi_import_exp afi_export_exp
 %type <string> import_exp export_exp
 %type <string> import_factor_list export_factor_list
 %type <string> attr_import_syntax  attr_export_syntax
-%type <string> attr_import_via_syntax  attr_export_via_syntax
 %type <string> opt_protocol_from opt_protocol_into
 %type <string> opt_default_filter default_to optional_comment
 %type <string> opt_afi_specification afi_list afi_token afi_name
@@ -1092,14 +1088,9 @@ attr_import: T_IP_KEY {mp_attr = 0;} attr_import_syntax { $$ = $3; };
 
 attr_mp_import: T_MI_KEY {mp_attr = 1;} attr_import_syntax { $$ = $3; };
 
+attr_import_via: T_IV_KEY {mp_attr = 1; via_attr = 1;} attr_import_syntax { $$ = $3; };
+
 attr_import_syntax: opt_protocol_from opt_protocol_into import_simple
-           { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
-   | opt_protocol_from opt_protocol_into afi_import_exp
-           { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
-
-attr_import_via: T_IV_KEY {mp_attr = 1;} attr_import_via_syntax { $$ = $3; };
-
-attr_import_via_syntax: opt_protocol_from opt_protocol_into import_via_simple
            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
    | opt_protocol_from opt_protocol_into afi_import_exp
            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
@@ -1108,14 +1099,9 @@ attr_export: T_EX_KEY {mp_attr = 0;} attr_export_syntax { $$ = $3; };
 
 attr_mp_export: T_MX_KEY {mp_attr = 1;} attr_export_syntax { $$ = $3; };
 
+attr_export_via: T_EV_KEY {mp_attr = 1; via_attr = 1;} attr_export_syntax { $$ = $3; };
+
 attr_export_syntax: opt_protocol_from opt_protocol_into export_simple
-           { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
-   | opt_protocol_from opt_protocol_into afi_export_exp
-           { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
-
-attr_export_via: T_EV_KEY {mp_attr = 1;} attr_export_via_syntax { $$ = $3; };
-
-attr_export_via_syntax: opt_protocol_from opt_protocol_into export_via_simple
            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
    | opt_protocol_from opt_protocol_into afi_export_exp
            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
@@ -1180,14 +1166,6 @@ import_simple: opt_afi_specification import_factor
 export_simple: opt_afi_specification export_factor
         { $$ = my_strcat (&curr_obj, 3, 02, $1, " ", $2); };
 
-/* simple via import/export expression */
-
-import_via_simple: opt_afi_specification import_via_factor
-        { $$ = my_strcat (&curr_obj, 3, 02, $1, " ", $2); };
-
-export_via_simple: opt_afi_specification export_via_factor
-        { $$ = my_strcat (&curr_obj, 3, 02, $1, " ", $2); };
-
 /* structured import/export expressions */
 
 afi_import_exp: opt_afi_specification import_exp
@@ -1238,35 +1216,30 @@ import_factor: import_peering_action_list T_ACCEPT filter
 export_factor: export_peering_action_list T_ANNOUNCE filter
         { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
 
-import_via_factor: import_via_peering_action_list T_ACCEPT filter
-        { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
-
-export_via_factor: export_via_peering_action_list T_ANNOUNCE filter
-        { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
-
-
 /* peering action pair */
 
 import_peering_action_list: T_FROM peering opt_action
-            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
+            { if ( via_attr == 1 )
+                error_msg_queue (&curr_obj, "Regular import statements not allowed in import-via attribute", ERROR_MSG); 
+              $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
+        | peering T_FROM peering opt_action 
+            { if ( via_attr == 0 )
+                error_msg_queue (&curr_obj, "import-via statements not allowed in regular import attribute", ERROR_MSG); 
+              $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | import_peering_action_list T_FROM peering opt_action 
             { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
 
-import_via_peering_action_list: peering T_FROM peering opt_action
-            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
-        | import_via_peering_action_list T_FROM peering opt_action 
-            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
-
 export_peering_action_list: T_TO peering opt_action
-            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
+            { if ( via_attr == 1 )
+                error_msg_queue (&curr_obj, "Regular export statements not allowed in export-via attribute", ERROR_MSG); 
+              $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
+        | peering T_TO peering opt_action
+            { if ( via_attr == 0 )
+                error_msg_queue (&curr_obj, "export-via statements not allowed in regular export attribute", ERROR_MSG); 
+              $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | export_peering_action_list T_TO peering opt_action
             { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
  
-export_via_peering_action_list: peering T_TO peering opt_action
-            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
-        | export_via_peering_action_list T_TO peering opt_action
-            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
-                    
 peering: as_expression opt_router_expression opt_router_expression_with_at
             { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | T_PRNGNAME { $$ = $1; };
