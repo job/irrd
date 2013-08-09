@@ -1084,9 +1084,9 @@ attr_autnum: T_AN_KEY T_AS { asnum_syntax ($2, &curr_obj); $$ = $2; };
 
 attr_asname: T_AA_KEY T_WORD { $$ = $2; };
 
-attr_import: T_IP_KEY {mp_attr = 0;} attr_import_syntax { $$ = $3; };
+attr_import: T_IP_KEY {mp_attr = 0; via_attr = 0;} attr_import_syntax { $$ = $3; };
 
-attr_mp_import: T_MI_KEY {mp_attr = 1;} attr_import_syntax { $$ = $3; };
+attr_mp_import: T_MI_KEY {mp_attr = 1; via_attr = 0;} attr_import_syntax { $$ = $3; };
 
 attr_import_via: T_IV_KEY {mp_attr = 1; via_attr = 1;} attr_import_syntax { $$ = $3; };
 
@@ -1095,9 +1095,9 @@ attr_import_syntax: opt_protocol_from opt_protocol_into import_simple
    | opt_protocol_from opt_protocol_into afi_import_exp
            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
 
-attr_export: T_EX_KEY {mp_attr = 0;} attr_export_syntax { $$ = $3; };
+attr_export: T_EX_KEY {mp_attr = 0; via_attr = 0;} attr_export_syntax { $$ = $3; };
 
-attr_mp_export: T_MX_KEY {mp_attr = 1;} attr_export_syntax { $$ = $3; };
+attr_mp_export: T_MX_KEY {mp_attr = 1; via_attr = 0;} attr_export_syntax { $$ = $3; };
 
 attr_export_via: T_EV_KEY {mp_attr = 1; via_attr = 1;} attr_export_syntax { $$ = $3; };
 
@@ -1220,26 +1220,38 @@ export_factor: export_peering_action_list T_ANNOUNCE filter
 
 import_peering_action_list: T_FROM peering opt_action
             { if ( via_attr == 1 )
-                error_msg_queue (&curr_obj, "Regular import statements not allowed in import-via attribute", ERROR_MSG); 
+                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
               $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | peering T_FROM peering opt_action 
             { if ( via_attr == 0 )
-                error_msg_queue (&curr_obj, "import-via statements not allowed in regular import attribute", ERROR_MSG); 
+                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
               $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | import_peering_action_list T_FROM peering opt_action 
-            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
+            { if ( via_attr == 1 )
+                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
+              $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
+        | import_peering_action_list peering T_FROM peering opt_action 
+            { if ( via_attr == 0 )
+                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
+              $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
 
 export_peering_action_list: T_TO peering opt_action
             { if ( via_attr == 1 )
-                error_msg_queue (&curr_obj, "Regular export statements not allowed in export-via attribute", ERROR_MSG); 
+                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
               $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | peering T_TO peering opt_action
             { if ( via_attr == 0 )
-                error_msg_queue (&curr_obj, "export-via statements not allowed in regular export attribute", ERROR_MSG); 
+                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
               $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | export_peering_action_list T_TO peering opt_action
-            { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
- 
+            { if ( via_attr == 1 )
+                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
+              $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
+        | export_peering_action_list peering T_TO peering opt_action 
+            { if ( via_attr == 0 )
+                error_msg_queue (&curr_obj, "illegal syntax", ERROR_MSG); 
+              $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); };
+
 peering: as_expression opt_router_expression opt_router_expression_with_at
             { $$ = my_strcat (&curr_obj, 5, 02|010, $1, " ", $2, " ", $3); }
         | T_PRNGNAME { $$ = $1; };
