@@ -1,10 +1,9 @@
-#
-# $Id: Makefile,v 1.2 2001/07/13 18:13:54 ljb Exp $
-#
+ACLOCAL_AMFLAGS         = -I m4
+AM_CFLAGS               = -Wall
 
-include Make.include
+include Make.include.in
 
-all::	
+all:	
 	@test $(.CURDIR) && cd $(.CURDIR); \
 	if [ "$(NEED_CONFIGURE)" ]; then sh ./configure; fi && \
 	$(MAKE) library program
@@ -21,15 +20,16 @@ program:
 	@echo "Making programs"; \
 	    test $(.CURDIR) && cd $(.CURDIR); cd programs; $(MAKE) all
 
-clean:
-	@$(RM) config.cache
-	@$(RM) config.log
-	@$(RM) config.status
+clean-progs:
 	@echo "Cleaning up lib"; \
-	test $(.CURDIR) && cd $(.CURDIR); cd lib; $(MAKE) $@
+	test $(.CURDIR) && cd $(.CURDIR); cd lib; $(MAKE) clean
 	@echo "Cleaning up programs"; \
-	test $(.CURDIR) && cd $(.CURDIR); cd programs; $(MAKE) $@
-	@test $(.CURDIR) && cd $(.CURDIR); $(RM) config.cache
+	test $(.CURDIR) && cd $(.CURDIR); cd programs; $(MAKE) clean
+
+.PHONY:	clean-progs
+
+clean-am:	clean-progs
+distclean-am:	clean-progs
 
 depend:
 	@echo "Making dependency in lib"; \
