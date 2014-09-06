@@ -1,0 +1,39 @@
+test:
+	mkdir -p /tmp/irr/pgp_dir /tmp/irr/log
+	sudo /tmp/derp/sbin/irrd -v -f /home/job/source/irrd/tests/irrd.conf &
+	@sleep 1
+
+	# empty the database and insert first maintainer
+	cat test_000_maint.txt | sudo tee /var/spool/irr_database/sampledb.db
+	
+	# relaod the database with maintainer which has crypt, md5 and pgp auth
+	(echo admin_citesting; sleep 2; echo "reload sampledb\n\r"; sleep 2; exit) | telnet localhost 5673 || echo
+	@sleep 1
+	whois -h localhost MAINT-TEST
+
+	@echo
+	@echo
+
+	@echo "INFO: testing admin password"
+	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_001_person.txt
+	@sleep 1
+	whois -h localhost TESTUSER-sampledb
+
+	@echo
+	@echo
+
+	@echo "INFO: testing UNIX crypt password"
+	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_002_gpg_w_crypt.txt | tee /dev/tty | grep "OK:"
+	@sleep 1
+	whois -h localhost PGPKEY-8BFE94A9
+
+	@echo
+	@echo
+
+	@echo "INFO: testing MD5 password"
+	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_003_person_w_md5.txt | tee /dev/tty | grep "OK:"
+	@sleep 1
+	whois -h localhost TESTUSER-sampledb
+
+	# kill irrd
+	(echo admin_citesting; sleep 2; echo "kill\n\r"; sleep 2; exit) | telnet localhost 5673 || echo
