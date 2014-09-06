@@ -2,7 +2,7 @@ language: c
 
 before_install:
     - sudo apt-get update
-    - sudo apt-get install byacc automake autoconf build-essential gnupg
+    - sudo apt-get install byacc automake autoconf build-essential gnupg telnet
 
 script:
     - cd src
