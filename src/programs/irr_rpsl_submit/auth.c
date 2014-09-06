@@ -636,6 +636,15 @@ enum AUTH_CODE do_auth_check (trace_t *tr, char *auth_line, trans_info_t *ti) {
       return AUTH_PASS_C;
     return AUTH_FAIL_C;
   }
+
+  /* MD5-PW auth check */
+  /* NOTE: this only works if this is with the GNU crypt */
+  if (!strncasecmp ("MD5-PW", p, 6) && ti->crypt_pw != NULL) {
+    trace (NORM, tr, "do_auth_check () cleartxt passwd-(%s) crypt passwd-(%s)\n",ti->crypt_pw, q);
+    if (check_crypt_passwd (ti->crypt_pw, q))
+      return AUTH_PASS_C;
+    return AUTH_FAIL_C;
+  }
  
   /* We are in bad shape if we get here */
   return AUTH_FAIL_C;
