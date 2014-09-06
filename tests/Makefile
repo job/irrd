@@ -1,6 +1,6 @@
 test:
 	mkdir -p /tmp/irr/pgp_dir /tmp/irr/log
-	sudo /tmp/derp/sbin/irrd -v -f /home/job/source/irrd/tests/irrd.conf &
+	sudo irrd -v -f irrd.conf &
 	@sleep 1
 
 	# empty the database and insert first maintainer
