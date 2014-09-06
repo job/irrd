@@ -10,3 +10,5 @@ script:
     - ./configure
     - make
     - sudo make install
+    - cd ../tests
+    - make test
