@@ -12,3 +12,6 @@ script:
     - sudo make install
     - cd ../tests
     - make test
+
+after_script:
+    - sudo rm -rf /tmp/irr /var/spool/irr_database
