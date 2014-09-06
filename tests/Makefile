@@ -1,6 +1,6 @@
 test:
 	mkdir -p /tmp/irr/pgp_dir /tmp/irr/log
-	sudo irrd -v -f irrd.conf &
+	sudo irrd -f irrd.conf &
 	@sleep 1
 
 	# empty the database and insert first maintainer
@@ -14,26 +14,24 @@ test:
 	@echo
 	@echo
 
-	@echo "INFO: testing admin password"
-	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_001_upload_person_with_adminpass.txt | tee /dev/tty | grep "OK:"
+	@echo "INFO: testing object creation authenticated with UNIX crypt password"
+	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_001_upload_certif_with_unixcrypt.txt | tee /dev/tty | grep "OK:"
 	@sleep 1
 	whois -h localhost TESTUSER-sampledb
 
 	@echo
 	@echo
 
-	@echo "INFO: testing UNIX crypt password"
-	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_002_upload_certif_with_unixcrypt.txt | tee /dev/tty | grep "OK:"
-	@sleep 1
-	whois -h localhost PGPKEY-8BFE94A9
-
-	@echo
-	@echo
-
-	@echo "INFO: testing MD5 password"
-	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_003_modify_person_with_md5.txt | tee /dev/tty | grep "OK:"
+	@echo "INFO: testing object modification authenticated with MD5 password"
+	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_002_modify_person_with_md5.txt | tee /dev/tty | grep "OK:"
 	@sleep 1
 	whois -h localhost TESTUSER-sampledb
+
+	@echo "INFO: testing object modification authenticated with GPG signature"
+	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_003_modify_person_with_gpg.txt | tee /dev/tty | grep "OK:"
+	@sleep 1
+	whois -h localhost TESTUSER-sampledb
+
 
 	# kill irrd
-	(echo admin_citesting; sleep 2; echo "kill\n\r"; sleep 2; exit) | telnet localhost 5673 || echo
+	(echo admin_citesting; sleep 2; echo "kill\n\r"; sleep 1; echo "yes\n\r") | telnet localhost 5673 || echo

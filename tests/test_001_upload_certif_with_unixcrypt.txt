@@ -12,6 +12,16 @@ From: test_001@localhost (Ubuntu)
 
 password: unixcrypt_citesting
 
+person:     Test User
+address:    Smoke Avenue 4
+remarks:    remark
+phone:      +31-6-123456789
+e-mail:     test_001@localhost
+nic-hdl:    TESTUSER-sampledb
+mnt-by:     MAINT-TEST
+changed:    test001@localhost 20140901
+source:     sampledb
+
 key-cert:   PGPKEY-8BFE94A9
 certif:
  -----BEGIN PGP PUBLIC KEY BLOCK-----
