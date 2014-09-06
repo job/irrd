@@ -1,3 +1,5 @@
+# FIXME: a more elegant 'test for this string's absence or presence method should be created
+
 test:
 	mkdir -p /tmp/irr/pgp_dir /tmp/irr/log
 	sudo irrd -f irrd.conf &
@@ -27,11 +29,15 @@ test:
 	@sleep 1
 	whois -h localhost TESTUSER-sampledb
 
-	@echo "INFO: testing object modification authenticated with GPG signature"
-	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_003_modify_person_with_gpg.txt | tee /dev/tty | grep "OK:"
-	@sleep 1
-	whois -h localhost TESTUSER-sampledb
+	@echo
+	@echo
 
+	@echo "INFO: testing heasely's i6 patch"
+	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_004_test_heasely_i6.txt | tee /dev/tty | grep "OK:"
+	@sleep 1
+	whois -h localhost AS1:AS-ALL
+	
+	echo '!i6AS1:AS-ALL' | telnet localhost 43
 
 	# kill irrd
 	(echo admin_citesting; sleep 2; echo "kill\n\r"; sleep 1; echo "yes\n\r") | telnet localhost 5673 || echo
