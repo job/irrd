@@ -2,7 +2,7 @@ mntner:     MAINT-TEST
 descr:      Example
 admin-c:    TESTPERSON-sampledb
 tech-c:     TESTPERSON-sampledb
-auth:       CRYPT-PW aa8TsXrTqKcBg
+auth:       CRYPT-PW aazl7kClQAddg
 auth:       MD5-PW $1$BO05zdkK$/.qYCrwPuDjpxzMjghUlO0
 auth:       PGPKEY-8BFE94A9
 remarks:    remark

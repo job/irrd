@@ -10,7 +10,7 @@ Message-Id: <20140906142935.8516168379@irime.6core.net>
 Date: Sat,  6 Sep 2014 14:29:35 +0000 (UTC)
 From: test_001@localhost (Ubuntu)
 
-password: citesting_unixcrypt
+password: unixcrypt_citesting
 
 key-cert:   PGPKEY-8BFE94A9
 certif:

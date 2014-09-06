@@ -4,7 +4,7 @@ test:
 	@sleep 1
 
 	# empty the database and insert first maintainer
-	cat test_000_maint.txt | sudo tee /var/spool/irr_database/sampledb.db
+	cat test_000_insert_maint.txt | sudo tee /var/spool/irr_database/sampledb.db
 	
 	# relaod the database with maintainer which has crypt, md5 and pgp auth
 	(echo admin_citesting; sleep 2; echo "reload sampledb\n\r"; sleep 2; exit) | telnet localhost 5673 || echo
@@ -15,7 +15,7 @@ test:
 	@echo
 
 	@echo "INFO: testing admin password"
-	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_001_person.txt
+	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_001_upload_person_with_adminpass.txt | tee /dev/tty | grep "OK:"
 	@sleep 1
 	whois -h localhost TESTUSER-sampledb
 
@@ -23,7 +23,7 @@ test:
 	@echo
 
 	@echo "INFO: testing UNIX crypt password"
-	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_002_gpg_w_crypt.txt | tee /dev/tty | grep "OK:"
+	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_002_upload_certif_with_unixcrypt.txt | tee /dev/tty | grep "OK:"
 	@sleep 1
 	whois -h localhost PGPKEY-8BFE94A9
 
@@ -31,7 +31,7 @@ test:
 	@echo
 
 	@echo "INFO: testing MD5 password"
-	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_003_person_w_md5.txt | tee /dev/tty | grep "OK:"
+	irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_003_modify_person_with_md5.txt | tee /dev/tty | grep "OK:"
 	@sleep 1
 	whois -h localhost TESTUSER-sampledb
 
