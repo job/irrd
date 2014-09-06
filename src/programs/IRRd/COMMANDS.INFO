@@ -26,6 +26,9 @@ i command with option 1
 	eg, !iAS-ESNETEU     	# non-recursive, don't expand any embedded sets
 	eg, !iAS-ESNETEU,1   	# expand any embedded as-set/route-set's
 
+i6 command with option 1
+	Like !i, but return route6 objects
+
 j command
 	View the mirror status (oldest journal number, CURRENTSERIAL) for a db.
 
