@@ -637,10 +637,8 @@ int dump_serial_updates (irr_connection_t *irr, irr_database_t *database, int jo
       continue;
     if (!strncasecmp(buf, "auth:", 5)) {
       if (database->cryptpw_access_list != 0 && 
-          !apply_access_list(database->cryptpw_access_list, irr->from) ) {
-	    scrub_cryptpw(buf);
-	    scrub_md5pw(buf);
-      }
+          !apply_access_list(database->cryptpw_access_list, irr->from) )
+	  scrub_cryptpw(buf);
     } 
     irr_write (irr, buf, strlen(buf));
   }
