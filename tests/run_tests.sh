@@ -64,10 +64,10 @@ function test_004 {
     whois -h localhost AS1:AS-ALL
     echo
     echo INFO: this should list a mix of ASN and AS_SET
-    whois -h localhost '\!i6AS1:AS-ALL'
+    whois -h localhost '!i6AS1:AS-ALL'
     echo
     echo INFO: this should list be a list of only ASN
-    whois -h localhost '\!i6AS1:AS-ALL,1'
+    whois -h localhost '!i6AS1:AS-ALL,1'
 }
 
 function tests_round_1 {
