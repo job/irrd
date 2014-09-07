@@ -62,7 +62,12 @@ function test_004 {
     irr_rpsl_submit -v -f irrd.conf -s sampledb -x < test_004_test_heasely_i6.txt
     sleep 2
     whois -h localhost AS1:AS-ALL
-    echo '!i6AS1:AS-ALL' | telnet localhost 43
+    echo
+    echo INFO: this should list a mix of ASN and AS_SET
+    whois -h localhost '\!i6AS1:AS-ALL'
+    echo
+    echo INFO: this should list be a list of only ASN
+    whois -h localhost '\!i6AS1:AS-ALL,1'
 }
 
 function tests_round_1 {
@@ -82,8 +87,6 @@ function tests_round_1 {
     # the following essentially is test_005
     # run show_irrd_config "sampledb" "FAIL"
     # see https://travis-ci.org/job/irrd/builds/34656137 for a round 1 failure
-
-#    echo '!i6AS1:AS-ALL' | telnet localhost 43
 }
 
 function tests_with_pwhash_hiding {
