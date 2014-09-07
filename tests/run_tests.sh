@@ -90,12 +90,6 @@ function tests_with_pwhash_hiding {
     sleep 2
     echo -e "config\n\r"
     sleep 2
-    echo -e "access-list 99 permit ::1/128\n\r"
-    sleep 2
-    echo -e "access-list 99 permit 127.0.0.0/8\n\r"
-    sleep 2
-    echo -e "access-list 99 deny all\n\r"
-    sleep 2
     echo -e "irr_database sampledb cryptpw-access 99\n\r"
     sleep 2
     echo -e "exit\n\r"; sleep 2
