@@ -87,6 +87,76 @@ int update_cryptpw (trace_t *tr, FILE *fd, long fpos, char *authinfo) {
   return 0;
 }
 
+/*  check for $1$SaltSalt$DummifiedMD5HashValue. magic value and copy 
+ *  over with old value if able to match up, return error if not
+ */
+int update_md5pw (trace_t *tr, FILE *fd, long fpos, char *authinfo) {
+  long savepos, curpos;
+  char buf[MAXLINE], *q, *p, *r, *str_comment;
+  int buflen, position = 0, count, len, found;
+
+  savepos = ftell(fd);
+  fseek (fd, fpos, SEEK_SET);
+
+  while (fgets (buf, MAXLINE, fd) != NULL && buf[0] != '\n') {
+    if (!is_auth(buf))
+      continue;
+    q = strchr(buf, ':');
+    if (!q) /* sanity check */
+      break;
+    p = ++q;
+    find_token (&p, &q);
+    if (strncasecmp(p, "MD5-PW", 6))
+      continue;
+    position++;
+    buflen = strlen(buf);
+    find_token (&p, &q);
+    if (strncmp(p, "$1$SaltSalt$DummifiedMD5HashValue.", 34)) {
+      continue;
+    }
+    if (p[34] != '\n')
+      str_comment = p + 34;
+    else
+      str_comment = NULL;
+    trace(INFO, tr, "update_md5pw(): found $1$SaltSalt$DummifiedMD5HashValue. - %s", buf);
+    count = 1;
+    found = 0;
+    r = strtok(authinfo, "\n");
+    while (r) {
+      if (!strncasecmp(r, "MD5-PW", 6)) {
+	r += 6;
+	q = r;
+	find_token (&r, &q);
+	if (str_comment) {
+	  q = r + 34;
+	  len = strlen(q); 
+	  if (!len)
+	    continue;
+	  trace(INFO, tr, "update_md5pw(): matching comment field - %s", str_comment);
+	  if (strncmp(str_comment, q, len))
+	    continue;
+	}
+	trace(INFO, tr, "update_md5pw(): copying old md5pw - %s\n", r);
+        found = 1;
+	curpos = ftell(fd);
+	fseek (fd, p - buf - buflen, SEEK_CUR);
+	fwrite(r, 34, 1, fd);
+	fseek (fd, curpos, SEEK_SET);
+        if (count == position)	/* quit if we hit the same md5pw position */
+	  break;
+      }
+      count++;
+      r = strtok(NULL, "\n");
+    }
+    if (!found) {
+      fseek (fd, savepos, SEEK_SET);
+      return -1;
+    }
+  }
+  fseek (fd, savepos, SEEK_SET);
+  return 0;
+}
+
 /* 
  * See if the object in file *fd1 is the same as the
  * object in file *fd2.
