@@ -82,8 +82,6 @@ function tests_round_1 {
     # the following essentially is test_005
     # run show_irrd_config "sampledb" "FAIL"
     # see https://travis-ci.org/job/irrd/builds/34656137 for a round 1 failure
-    echo INFO: show_irrd_config output
-    show_irrd_config
 
 #    echo '!i6AS1:AS-ALL' | telnet localhost 43
 }
