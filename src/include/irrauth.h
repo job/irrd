@@ -155,6 +155,7 @@ void new_kc_obj (trace_t *, kc_info_t *, char *);
 
 /* util.c */
 int update_cryptpw (trace_t *, FILE *, long, char *);
+int update_md5pw (trace_t *, FILE *, long, char *);
 int noop_check (trace_t *, FILE *, long, FILE *, long);
 char *myconcat (char *, char *);
 int find_token (char **, char **);
